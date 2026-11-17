@@ -1,3 +1,4 @@
+
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -16,6 +17,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  backend:
+    image: mypilot-backend:local
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mypilot-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/devpilot
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   devpilot_pg_data:
